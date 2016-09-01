@@ -1,0 +1,155 @@
+
+<div class="mod_orientierunglauf_app">
+
+    <h2>Posten</h2>
+
+    <div id="positions">
+        <?php foreach($this->positions as $position): ?>
+        <div class="row" style="<?= $position['style'] ?>">
+            <div class="row-position col-xs-4"><?= $position['title'] ?></div>
+            <div class="row-position col-xs-4"><?= substr($position['longitude'], 1) ?> // <?= substr($position['latitude'], 1) ?></div>
+            <div class="row-position col-xs-4"></div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <br></br>
+    <br></br>
+    <br></br>
+
+    <h2>LV95</h2>
+
+    <div class="form-group row">
+        <label for="lv95-input-easting" class="col-md-4 col-form-label">Swiss Grid LV95 (Easting)</label>
+        <div class="col-md-8">
+            <input id="lv95-input-easting" type="text" class="form-control" value="2600000" maxlength="7"></input>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="lv95-input-northing" class="col-md-4 col-form-label">Swiss Grid LV95 (Northing)</label>
+        <div class="col-md-8">
+            <input id="lv95-input-northing" type="text" class="form-control" value="1200000" maxlength="7"></input>
+        </div>
+    </div>
+    <button id="transform-lv95towgs84" class="btn btn-default">Transform into WGS84 Coordinates</button>
+
+    <br></br>
+    <br></br>
+    <br></br>
+
+    <h2>WGS84</h2>
+    <div class="form-group row">
+        <label for="wgs84-input-easting" class="col-md-4 col-form-label">WGS84 (Easting)</label>
+        <div class="col-md-8">
+            <input id="wgs84-input-easting" type="text" class="form-control" value="" maxlength="7"></input>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="wgs84-input-northing" class="col-md-4 col-form-label">WGS84 (Northing)</label>
+        <div class="col-md-8">
+            <input id="wgs84-input-northing" type="text" class="form-control" value="" maxlength="7"></input>
+        </div>
+    </div>
+    <button id="transform-wgs84tolv95" class="btn btn-default">Transform into Swiss Grid Coordinates</button>
+
+    <br></br>
+    <br></br>
+    <br></br>
+
+    <h2>Your Position</h2>
+    <div id="yourPosition">
+        <div class="posLatitude"></div>
+        <div class="posLongitude"></div>
+        <div class="posAccuracy"></div>
+
+        <div class="posWarning"></div>
+
+    </div>
+    <button id="getPosition" class="btn btn-default">Get Position</button>
+
+
+</div>
+
+
+<script>
+
+$('#transform-lv95towgs84').click(function(){
+    getwgs84();
+});
+$('#transform-wgs84tolv95').click(function(){
+    getlv95();
+});
+$('#getPosition').click(function(){
+    console.log('Requesting geolocation...');
+    navigator.geolocation.watchPosition(success, error, options);
+});
+
+
+
+
+var options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 15000
+};
+
+function success(pos) {
+    var crd = pos.coords;
+    $('#yourPosition .posLatitude').text(crd.latitude);
+    $('#yourPosition .posLongitude').text(crd.longitude);
+    $('#yourPosition .posAccuracy').text(crd.accuracy + ' m');
+    $('#yourPosition .posWarning').text('');
+    var url = "https://geodesy.geo.admin.ch/reframe/wgs84tolv95?easting=" + crd.longitude + "&northing=" + crd.latitude;
+    $.getJSON( url, function( data ) {
+        $('#lv95-input-easting').prop('value',Math.round(data.coordinates[0]));
+        $('#lv95-input-northing').prop('value',Math.round(data.coordinates[1]));
+    });
+
+
+
+    console.log('Your current position is:');
+    console.log('Latitude : ' + crd.latitude);
+    console.log('Longitude: ' + crd.longitude);
+    console.log('More or less ' + crd.accuracy + ' meters.');
+}
+
+function error(err) {
+    $('#yourPosition .posLongitude').text('');
+    $('#yourPosition .posLatitude').text('');
+    $('#yourPosition .posAccuracy').text('');
+    $('#yourPosition .posWarning').text('ERROR(' + err.code + '): ' + err.message);
+}
+
+/** Get Position **/
+window.setTimeout(function(){
+    console.log('Requesting geolocation...');
+    navigator.geolocation.getCurrentPosition(success, error, options);
+}, 10000);
+
+
+function getwgs84()
+{
+    var easting = $('#lv95-input-easting').val();
+    var northing = $('#lv95-input-northing').val();
+    var url = "https://geodesy.geo.admin.ch/reframe/lv95towgs84?easting=" + easting + "&northing=" + northing;
+    $.getJSON( url, function( data ) {
+        $('#wgs84-input-easting').prop('value',data.coordinates[0]);
+        $('#wgs84-input-northing').prop('value',data.coordinates[1]);
+    });
+}
+
+
+function getlv95()
+{
+    var easting = $('#wgs84-input-easting').val();
+    var northing = $('#wgs84-input-northing').val();
+    var url = "https://geodesy.geo.admin.ch/reframe/wgs84tolv95?easting=" + easting + "&northing=" + northing;
+    $.getJSON( url, function( data ) {
+        $('#lv95-input-easting').prop('value',data.coordinates[0]);
+        $('#lv95-input-northing').prop('value',data.coordinates[1]);
+    });
+}
+
+
+</script>
+
+

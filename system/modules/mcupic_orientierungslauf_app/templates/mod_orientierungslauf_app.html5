@@ -1,0 +1,100 @@
+<STYLE type="text/css">
+    #positions  {
+    padding: 0.5rem;
+    background-color: #efefef;
+    }
+    #positions .row {
+     display:none;
+    }
+    #positions .row.current,  #positions .row.passed  {
+        display:inherit;
+    }
+    #positions .row > div{
+    }
+
+    #positions .row > div > * {
+        padding: 0.5rem;
+        display: block;
+        padding-left: 2rem;
+        position:relative;
+
+    }
+
+    #positions .row > div > *:before{
+        font-family: "FontAwesome";
+        position: absolute;
+        top: 6px;
+        left: 15px;
+        padding-right: 20px;
+        font-size: 1.25rem;
+        left:0;
+    }
+    #positions .row.current > div > *:before{
+        content: "\f11e";
+    }
+    #positions .row.passed > div > *:before{
+        content: "\f00c";
+        color: #1E90FF;
+    }
+
+</STYLE>
+
+<div class="mod_orientierunglauf_app">
+
+    <h1>Postenlauf</h1>
+    <h2><?= $this->trackName ?> (<?= $this->countItems ?> Posten)</h2>
+
+    <div><strong><?= $this->athleteName ?></strong></div>
+    <br>
+
+    <div id="positions">
+        <?php foreach($this->positions as $position): ?>
+        <div id="position-<?= $position['id'] ?>" data-pos-id="<?= $position['id'] ?>" data-passed="<?= $position['passed'] ?>" data-logtime="<?= $position['logTime'] ?>" data-log-posx="<?= $position['logPosX'] ?>" data-log-posy="<?= $position['logPosY'] ?>" data-saved-to-server="<?= $position['savedToServer'] ?>" data-posx="<?= $position['longitude'] ?>" data-posy="<?= $position['latitude'] ?>" class="row<?php if(strlen($position['class'])): ?><?= $position['class'] ?><?php endif; ?>">
+            <div class="row-position col-xs-12">
+                <div>
+                    <?= $position['title'] ?><br>
+                    <?= substr($position['longitude'], 1) ?> // <?= substr($position['latitude'], 1) ?>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <br></br>
+    <?php if(!$this->Template->finished): ?>
+        <button id="btnValidatePosition" class="btn btn-default">Posten erreicht?</button>
+    <?php endif; ?>
+
+    <br></br>
+    <br></br>
+    <br></br>
+    <div id="connectionError" class="alert alert-danger">
+
+    </div>
+    <div id="runInfo" class="alert alert-info">
+        <?php if($this->Template->finished): ?>
+        <div>Du hast den Lauf abeschlossen in einer Zeit von <?= $this->runningTime ?> min.</div>
+        <?php endif; ?>
+    </div>
+
+
+
+    <div class="logout"><a href="<?= $this->logoutUrl ?>" title="logout">Logout</a></div>
+    <script>
+        var objRun = {
+            url: '<?= \Environment::get('base') . \Environment::get('request') ?>',
+            token: <?= $this->token ?>,
+            startTime: <?= $this->startTime ?>,
+            endTime:0,
+            currentIndex: -1,
+            targetPosX: 0,
+            targetPosY: 0,
+            posX: 0,
+            posY: 0,
+            distanceToTarget: false,
+            itemsTotal: 0,
+            currentPosId: 0
+        }
+
+    </script>
+
+</div>

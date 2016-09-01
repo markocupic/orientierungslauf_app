@@ -1,0 +1,19 @@
+
+<div class="mod_orientierunglauf_app">
+    <h1>Anmelden</h1>
+    <form action="<?= $this->url ?>" id="tl_login" method="post">
+        <div class="formbody well well-danger">
+            <input type="hidden" name="FORM_SUBMIT" value="tl_orientierungslauf_app">
+            <input type="hidden" name="REQUEST_TOKEN" value="<?= REQUEST_TOKEN ?>">
+
+            <div class="form-group row">
+                <label for="token" class="col-md-4 col-form-label">Anmeldeschl&uuml;ssel</label>
+                <div class="col-md-8">
+                    <input id="token" type="text" class="form-control" name="token" value="" maxlength="8"></input>
+                </div>
+            </div>
+
+            <input type="submit" class="btn btn-default" value="Lauf starten"></input>
+        </div>
+    </form>
+</div>
